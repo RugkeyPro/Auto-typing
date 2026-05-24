@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(SPECPATH).parents[1]
-ENTRYPOINT = ROOT / "src" / "mac_auto_typer" / "__main__.py"
+ENTRYPOINT = ROOT / "build" / "macos" / "pyinstaller_entry.py"
 
 
 a = Analysis(
