@@ -61,7 +61,10 @@ GitHub Actions:
 1. Push the repository to GitHub.
 2. Open Actions.
 3. Run `Build macOS App`.
-4. Download the `MacAutoTyper-arm64` or `MacAutoTyper-x64` artifact.
+4. Download `MacAutoTyper-arm64-dmg` for Apple Silicon Macs or `MacAutoTyper-x64-dmg` for Intel Macs.
+5. Open the `.dmg`, drag/copy `MacAutoTyper.app` to `Applications`, then open it from `Applications`.
+
+Do not open the raw `.app` folder from a GitHub artifact zip. GitHub artifact zips can lose macOS executable permissions for app bundles. Use the `.dmg` artifact, or use the `.app.tar.gz` artifact if you specifically need the raw app bundle with permissions preserved.
 
 ## Without a Local Mac
 
@@ -71,7 +74,7 @@ You can still build and run non-interactive macOS checks through GitHub Actions:
 2. Open the repository's `Actions` tab.
 3. Run `Build macOS App`.
 4. Confirm the workflow passes `Run tests`, `Run macOS dependency smoke check`, and `Verify app bundle`.
-5. Download the generated `.dmg` artifact.
+5. Download the generated `MacAutoTyper-*-dmg` artifact and open the `.dmg` inside it.
 
 This verifies the macOS dependency set, Quartz imports, backend selection, controller behavior, PyInstaller packaging, and app bundle structure. It does not verify real cursor typing, Accessibility permission prompts, or keyboard suppression inside Word/chat/browser fields. Those require an interactive macOS desktop session.
 

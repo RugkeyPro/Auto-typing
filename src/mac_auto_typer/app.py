@@ -29,6 +29,7 @@ from .controller import AutoTyperController
 from .core import TypingProgress, TypingState
 from .hotkeys import GlobalHotkeyManager, HotkeyError
 from .input_blocker import InputBlockerError, default_input_blocker
+from .logging_setup import setup_logging
 from .permissions import check_accessibility, is_macos
 from .text_io import read_text_file
 from .typing_backend import default_backend
@@ -598,6 +599,7 @@ class MainWindow(QMainWindow):
 
 
 def run(argv: list[str] | None = None) -> int:
+    setup_logging()
     app = QApplication(argv or sys.argv)
     app.setApplicationName("MacAutoTyper")
     app.setQuitOnLastWindowClosed(False)

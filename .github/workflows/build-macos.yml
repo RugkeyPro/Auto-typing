@@ -56,10 +56,21 @@ jobs:
             -format UDZO \
             "dist_dmg/MacAutoTyper-${{ matrix.arch }}.dmg"
 
-      - name: Upload app artifact
+      - name: Archive app bundle with permissions
+        run: |
+          mkdir -p dist_archive
+          tar -czf "dist_archive/MacAutoTyper-${{ matrix.arch }}.app.tar.gz" -C dist "MacAutoTyper.app"
+
+      - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MacAutoTyper-${{ matrix.arch }}
+          name: MacAutoTyper-${{ matrix.arch }}-dmg
           path: |
-            dist/MacAutoTyper.app
             dist_dmg/MacAutoTyper-${{ matrix.arch }}.dmg
+
+      - name: Upload app tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MacAutoTyper-${{ matrix.arch }}-app-tarball
+          path: |
+            dist_archive/MacAutoTyper-${{ matrix.arch }}.app.tar.gz
