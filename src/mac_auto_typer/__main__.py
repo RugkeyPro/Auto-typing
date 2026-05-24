@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import sys
 
-from .app import run
+from mac_auto_typer.app import run
 
 
 def main() -> int:
+    if "--self-test" in sys.argv:
+        return 0
     return run(sys.argv)
 
 

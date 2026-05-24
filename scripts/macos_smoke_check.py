@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import platform
+import subprocess
 import sys
 from pathlib import Path
 
@@ -81,6 +82,28 @@ def check_app_bundle(path: Path | None) -> None:
     print(f"ok: app bundle exists at {path}")
 
 
+def check_app_executable(path: Path | None) -> None:
+    if path is None:
+        return
+    executable = path / "Contents" / "MacOS" / "MacAutoTyper"
+    result = subprocess.run(
+        [str(executable), "--self-test"],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr, file=sys.stderr)
+    require(
+        result.returncode == 0,
+        f"app executable self-test failed with exit code {result.returncode}",
+    )
+    print("ok: app executable self-test")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--app-bundle", type=Path, default=None)
@@ -91,6 +114,7 @@ def main() -> int:
     check_backend_selection()
     check_controller_with_mock()
     check_app_bundle(args.app_bundle)
+    check_app_executable(args.app_bundle)
 
     print("macOS smoke check passed")
     return 0

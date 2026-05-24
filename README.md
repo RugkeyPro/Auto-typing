@@ -76,6 +76,8 @@ cat ~/Library/Logs/MacAutoTyper/MacAutoTyper.log
 /Applications/MacAutoTyper.app/Contents/MacOS/MacAutoTyper
 ```
 
+The GitHub Actions warning about Node.js 20 is not related to the app runtime. It only warns that GitHub's reusable workflow actions will move to Node.js 24 in the future.
+
 ## Without a Local Mac
 
 You can still build and run non-interactive macOS checks through GitHub Actions:
