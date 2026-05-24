@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import importlib
 import platform
 import subprocess
@@ -86,12 +87,15 @@ def check_app_executable(path: Path | None) -> None:
     if path is None:
         return
     executable = path / "Contents" / "MacOS" / "MacAutoTyper"
+    env = os.environ.copy()
+    env["MAC_AUTO_TYPER_SELF_TEST"] = "1"
     result = subprocess.run(
-        [str(executable), "--self-test"],
+        [str(executable)],
         check=False,
         capture_output=True,
         text=True,
         timeout=20,
+        env=env,
     )
     if result.stdout:
         print(result.stdout)

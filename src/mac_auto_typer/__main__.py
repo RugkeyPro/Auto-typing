@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import os
 import sys
 
 
 def main() -> int:
-    if "--self-test" in sys.argv:
+    if os.environ.get("MAC_AUTO_TYPER_SELF_TEST") == "1" or "--self-test" in sys.argv:
         return 0
     from mac_auto_typer.app import run
 
