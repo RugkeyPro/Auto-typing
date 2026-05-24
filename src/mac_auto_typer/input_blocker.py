@@ -47,10 +47,16 @@ class MacKeyboardInputBlocker:
     suppressed while blocking is active.
     """
 
+    _START_KEYCODES = {18, 83}  # top-row 1 and keypad 1
     _PAUSE_KEYCODES = {19, 84}  # top-row 2 and keypad 2
 
-    def __init__(self, on_pause: Callable[[], None]) -> None:
+    def __init__(
+        self,
+        on_pause: Callable[[], None],
+        on_start_resume: Callable[[], None] | None = None,
+    ) -> None:
         self._on_pause = on_pause
+        self._on_start_resume = on_start_resume
         self._blocking = threading.Event()
         self._ready = threading.Event()
         self._lock = threading.Lock()
@@ -153,16 +159,18 @@ class MacKeyboardInputBlocker:
                 quartz.CGEventTapEnable(self._tap, True)
             return event
 
-        if not self._blocking.is_set():
-            return event
-
-        if self._is_software_event(quartz, event):
-            return event
-
-        if self._is_pause_hotkey(quartz, event_type, event):
+        hotkey = self._hotkey_for_event(quartz, event_type, event)
+        if hotkey == "start":
+            if self._on_start_resume is not None and not self._blocking.is_set():
+                self._on_start_resume()
+            return None
+        if hotkey == "pause":
             self._blocking.clear()
             self._on_pause()
             return None
+
+        if not self._blocking.is_set() or self._is_software_event(quartz, event):
+            return event
 
         if event_type in {
             quartz.kCGEventKeyDown,
@@ -172,12 +180,18 @@ class MacKeyboardInputBlocker:
             return None
         return event
 
-    def _is_pause_hotkey(self, quartz, event_type, event) -> bool:  # noqa: ANN001
+    def _hotkey_for_event(self, quartz, event_type, event) -> str | None:  # noqa: ANN001
         if event_type != quartz.kCGEventKeyDown:
-            return False
+            return None
         keycode = quartz.CGEventGetIntegerValueField(event, quartz.kCGKeyboardEventKeycode)
         flags = quartz.CGEventGetFlags(event)
-        return keycode in self._PAUSE_KEYCODES and bool(flags & quartz.kCGEventFlagMaskControl)
+        if not flags & quartz.kCGEventFlagMaskControl:
+            return None
+        if keycode in self._START_KEYCODES:
+            return "start"
+        if keycode in self._PAUSE_KEYCODES:
+            return "pause"
+        return None
 
     def _is_software_event(self, quartz, event) -> bool:  # noqa: ANN001
         try:
@@ -194,7 +208,10 @@ class MacKeyboardInputBlocker:
             return False
 
 
-def default_input_blocker(on_pause: Callable[[], None]) -> InputBlocker:
+def default_input_blocker(
+    on_pause: Callable[[], None],
+    on_start_resume: Callable[[], None] | None = None,
+) -> InputBlocker:
     if platform.system() == "Darwin":
-        return MacKeyboardInputBlocker(on_pause)
+        return MacKeyboardInputBlocker(on_pause, on_start_resume)
     return NullInputBlocker()

@@ -10,7 +10,7 @@ MacAutoTyper is a user-controlled macOS background text entry helper. The setup 
 - Use `Ctrl+1` to start or resume and `Ctrl+2` to pause.
 - Preserve the current character position when paused.
 - Suppress physical keyboard input while auto typing is running, while still allowing `Ctrl+2` to pause.
-- Hide the setup window to the background and reopen it from the tray/menu item.
+- Minimize the setup window without losing normal Dock/window recovery.
 - Use a mock typing backend on Windows so development and tests do not control the local system.
 
 ## Local Development on Windows 11
@@ -77,6 +77,16 @@ cat ~/Library/Logs/MacAutoTyper/MacAutoTyper.log
 ```
 
 The GitHub Actions warning about Node.js 20 is not related to the app runtime. It only warns that GitHub's reusable workflow actions will move to Node.js 24 in the future.
+
+## Closing the App
+
+Close the setup window with the red close button or use `Cmd+Q`. The app exits and releases keyboard blocking. If an older build is stuck in the background, run:
+
+```bash
+pkill -f MacAutoTyper
+```
+
+On macOS, `Ctrl+1` and `Ctrl+2` are handled by the same Quartz event tap used for keyboard blocking. If they do not work after changing permissions, quit and reopen the app so macOS applies the new Input Monitoring permission.
 
 ## Without a Local Mac
 

@@ -57,7 +57,10 @@ class MainWindow(QMainWindow):
         self._hotkey_bridge.start_requested.connect(self._start_or_resume)
         self._hotkey_bridge.pause_requested.connect(self._pause)
 
-        self._input_blocker = default_input_blocker(self._hotkey_bridge.pause_requested.emit)
+        self._input_blocker = default_input_blocker(
+            self._hotkey_bridge.pause_requested.emit,
+            self._hotkey_bridge.start_requested.emit,
+        )
 
         self._controller = AutoTyperController(
             default_backend(),
@@ -85,10 +88,6 @@ class MainWindow(QMainWindow):
         self._apply_progress(self._controller.snapshot())
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
-        if not self._quitting and self._tray_icon is not None:
-            self.hide()
-            event.ignore()
-            return
         self._controller.shutdown()
         self._hotkeys.stop()
         self._input_blocker.stop()
@@ -137,7 +136,7 @@ class MainWindow(QMainWindow):
         self.clear_button.setObjectName("clearButton")
         self.permission_button = QPushButton("Check macOS Permission")
         self.permission_button.setObjectName("permissionButton")
-        self.hide_button = QPushButton("Hide to Background")
+        self.hide_button = QPushButton("Minimize")
         self.hide_button.setObjectName("hideButton")
 
         grid.addWidget(self.import_button, 0, 0)
@@ -195,7 +194,7 @@ class MainWindow(QMainWindow):
         self.pause_button.clicked.connect(self._pause)
         self.reset_button.clicked.connect(self._reset_progress)
         self.clear_button.clicked.connect(self._clear_text)
-        self.hide_button.clicked.connect(self.hide)
+        self.hide_button.clicked.connect(self.showMinimized)
         self.permission_button.clicked.connect(lambda: self._check_permissions(prompt=True))
         self.speed_slider.valueChanged.connect(self._speed_changed)
         self.jitter_checkbox.toggled.connect(self._controller.set_jitter_enabled)
@@ -254,6 +253,8 @@ class MainWindow(QMainWindow):
         self._start_input_blocker()
 
     def _start_hotkeys(self) -> None:
+        if is_macos():
+            return
         try:
             self._hotkeys.start()
         except HotkeyError as exc:
@@ -602,7 +603,7 @@ def run(argv: list[str] | None = None) -> int:
     setup_logging()
     app = QApplication(argv or sys.argv)
     app.setApplicationName("MacAutoTyper")
-    app.setQuitOnLastWindowClosed(False)
+    app.setQuitOnLastWindowClosed(True)
     window = MainWindow()
     window.show()
     return app.exec()
