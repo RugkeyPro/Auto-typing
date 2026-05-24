@@ -1,9 +1,17 @@
 from __future__ import annotations
 
+import os
 import sys
 
-from mac_auto_typer.app import run
+
+def main() -> int:
+    if os.environ.get("MAC_AUTO_TYPER_SELF_TEST") == "1" or "--self-test" in sys.argv:
+        return 0
+
+    from mac_auto_typer.app import run
+
+    return run(sys.argv)
 
 
 if __name__ == "__main__":
-    raise SystemExit(run(sys.argv))
+    raise SystemExit(main())
