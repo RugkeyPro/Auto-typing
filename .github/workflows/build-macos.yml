@@ -46,12 +46,21 @@ jobs:
       - name: Verify app bundle
         run: python scripts/macos_smoke_check.py --app-bundle dist/MacAutoTyper.app
 
+      - name: Ad-hoc sign app bundle
+        run: |
+          codesign --force --deep --sign - "dist/MacAutoTyper.app"
+          codesign --verify --deep --strict --verbose=2 "dist/MacAutoTyper.app"
+
       - name: Build unsigned DMG
         run: |
-          mkdir -p dist_dmg
+          mkdir -p dist_dmg dist_dmg_root
+          rm -rf dist_dmg_root/*
+          cp -R "dist/MacAutoTyper.app" "dist_dmg_root/MacAutoTyper.app"
+          cp "build/macos/README_INSTALL.txt" "dist_dmg_root/README_INSTALL.txt"
+          ln -s /Applications "dist_dmg_root/Applications"
           hdiutil create \
             -volname "MacAutoTyper" \
-            -srcfolder "dist/MacAutoTyper.app" \
+            -srcfolder "dist_dmg_root" \
             -ov \
             -format UDZO \
             "dist_dmg/MacAutoTyper-${{ matrix.arch }}.dmg"

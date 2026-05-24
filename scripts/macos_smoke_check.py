@@ -75,7 +75,9 @@ def check_app_bundle(path: Path | None) -> None:
         return
     require(path.exists(), f"app bundle does not exist: {path}")
     require((path / "Contents" / "Info.plist").exists(), "Info.plist missing")
-    require((path / "Contents" / "MacOS").exists(), "MacOS executable directory missing")
+    executable = path / "Contents" / "MacOS" / "MacAutoTyper"
+    require(executable.exists(), f"main executable missing: {executable}")
+    require(executable.stat().st_mode & 0o111, f"main executable is not executable: {executable}")
     print(f"ok: app bundle exists at {path}")
 
 

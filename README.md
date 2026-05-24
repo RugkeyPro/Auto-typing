@@ -62,9 +62,19 @@ GitHub Actions:
 2. Open Actions.
 3. Run `Build macOS App`.
 4. Download `MacAutoTyper-arm64-dmg` for Apple Silicon Macs or `MacAutoTyper-x64-dmg` for Intel Macs.
-5. Open the `.dmg`, drag/copy `MacAutoTyper.app` to `Applications`, then open it from `Applications`.
+5. Open the artifact folder, then open the `.dmg` inside it.
+6. In the mounted DMG window, drag `MacAutoTyper.app` to `Applications`.
+7. Open `Applications`, right-click `MacAutoTyper.app`, and choose `Open`.
 
 Do not open the raw `.app` folder from a GitHub artifact zip. GitHub artifact zips can lose macOS executable permissions for app bundles. Use the `.dmg` artifact, or use the `.app.tar.gz` artifact if you specifically need the raw app bundle with permissions preserved.
+
+If opening still appears to do nothing, run these commands on the Mac and send the output:
+
+```bash
+open /Applications/MacAutoTyper.app
+cat ~/Library/Logs/MacAutoTyper/MacAutoTyper.log
+/Applications/MacAutoTyper.app/Contents/MacOS/MacAutoTyper
+```
 
 ## Without a Local Mac
 
